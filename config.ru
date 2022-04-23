@@ -11,16 +11,25 @@ App=
 Mijo do
   on '/' do |params| 
     get do 
-      session[:name]=params[:name] || 'nonnax'
-      res.write 'Hey, ' 
-      res.write String(session[:name]) 
-      res.write ' you got: ' 
-      res.write params.inspect
+      unless session[:name]
+        res.redirect '/login' 
+      else
+        res.write 'Hey, ' 
+        res.write String(session[:name]) 
+        res.write ' you got: ' 
+        res.write params.inspect
+      end
+    end
+  end
+  on '/login' do |params|
+    get do
+      session[:name]=params[:name] || 'mijo'
+      res.redirect '/'
     end
   end
   on '/r' do |params| 
     get do
-      res.redirect '/'
+      res.redirect '/login?name=nonnax'
     end
     not_found do
       # local 404 handler
