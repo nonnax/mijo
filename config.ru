@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Id$ nonnax 2022-04-22 22:11:38 +0800
-require_relative 'clientware'
+require_relative 'clone'
 require 'securerandom'
 require 'rack/protection'
 
@@ -12,9 +12,9 @@ Mijo do
   on '/' do 
     get do |params|
       session[:name]=params[:name] || 'nonnax'
-      res.write 'hey,' 
+      res.write 'Hey, ' 
       res.write String(session[:name]) 
-      res.write ' you got ' 
+      res.write ' you got: ' 
       res.write params.inspect
     end
   end
@@ -26,6 +26,15 @@ Mijo do
       res.write String(params)
     end
   end
+  on '/:room' do 
+    get do |room, params|
+      res.html [room, params]
+    end
+  end
+  not_found do
+    # 404 handler
+    res.redirect '/?params='+String(params)
+  end  
 end
 
 run App #.new

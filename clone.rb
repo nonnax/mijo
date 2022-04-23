@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Id$ nonnax 2022-04-23 15:48:11 +0800
-require_relative 'mijo'
+require_relative 'lib/mijo'
 
 class Clone<Mijo
   class Response<Rack::Response
@@ -28,7 +28,7 @@ class Clone<Mijo
   end
   def call(env)
     @env,@req,@res=env,Rack::Request.new(env), Clone::Response.new('',200)
-    service(env)
+    service
   end
 end
 
