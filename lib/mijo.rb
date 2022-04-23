@@ -33,15 +33,18 @@ class Mijo
   def initialize(&block)
     @block=block
   end
-  def service(env)
-    main{instance_eval(&@block)}
+  def service
+    # subclass may provide custom request/response prior to calling `service()` in `call()`
+    main{ instance_eval(&@block) }
   end
   def call(env)
-    @env,@req,@res=env,Rack::Request.new(env),Rack::Response.new('',200,Rack::CONTENT_TYPE=>'text/html')
-    service(env)    
+    @env=env
+    @req=Rack::Request.new(env)
+    @res=Rack::Response.new('', 200, Rack::CONTENT_TYPE=>'text/html')
+    service
   end
   def session
-    env['rack.session']
+    env['rack.session'] || raise('You need to set up a session middleware. `use Rack::Session`')
   end
 end
 
