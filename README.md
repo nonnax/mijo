@@ -15,16 +15,17 @@ Mijo do
       unless session[:name]
         res.redirect '/login' 
       else
-        res.write 'Hey, ' 
         res.write String(session[:name]) 
-        res.write ' you got: ' 
+        res.write ' : ' 
         res.write params.inspect
       end
     end
   end
   on '/login' do |params|
-    session[:name]=params[:name] || 'nonnax'
-    res.redirect '/'
+    get do
+      session[:name]=params[:name] || 'nonnax'
+      res.redirect '/'
+    end
   end
   on '/r' do |params|
     get do

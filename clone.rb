@@ -22,12 +22,13 @@ class Clone<Mijo
     def html(s)
       puts s, type:'html'
     end
-    def json(s)      
-      puts s, type:'json'
+    def json(**h)
+      puts h.to_json, type:'json'
     end
   end
   def call(env)
-    @env,@req,@res=env,Rack::Request.new(env), Clone::Response.new('',200)
+    # the three musketeers
+    @env, @req, @res = env, Rack::Request.new(env), Clone::Response.new('',200)
     service
   end
 end

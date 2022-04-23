@@ -3,6 +3,7 @@
 require_relative 'clone'
 require 'securerandom'
 require 'rack/protection'
+require 'json'
 
 use Rack::Session::Cookie, secret: SecureRandom.hex(64)
 use Rack::Protection
@@ -14,7 +15,6 @@ Mijo do
       unless session[:name]
         res.redirect '/login' 
       else
-        res.write 'Hey, ' 
         res.write String(session[:name]) 
         res.write ' you got: ' 
         res.write params.inspect
@@ -31,18 +31,16 @@ Mijo do
     get do
       res.redirect '/login?name=nonnax'
     end
-    not_found do
-      # local 404 handler
-      res.write 'Not in r: '+ String(room)
-    end  
   end
-  on '/:room' do  |room|
+  on '/:room' do  |room, params|
     get do
-      res.write 'Found it in room: '+ String(room)
+      # write json
+      res.json room:, params: 
     end
     not_found do
-      # local 404 handler
-      res.write 'Not in room: '+ String(room)
+      # local 404 handler 
+      # write plain text
+      res.plain 'Not in room: '+ String(room)
     end  
   end
   not_found do
