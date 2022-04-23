@@ -15,9 +15,12 @@ Mijo do
       res.write 'hey !'+String(session[:name])+' '+params.inspect
     end
   end
-  on '/r' do |params|
+  on '/r' do 
     get do
       res.redirect '/'
+    end
+    post do |params|
+      res.write String(params)
     end
   end
 end

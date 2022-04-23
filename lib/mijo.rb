@@ -26,6 +26,9 @@ class Mijo
   def get
     run{yield(req.params)} if req.get?
   end
+  def post
+    run{yield(req.params)} if req.get?
+  end
 
   def initialize(&block)
     @block=block
