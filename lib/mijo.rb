@@ -20,22 +20,25 @@ class Mijo
     res.finish
   end
   def run
-    yield
+    yield req.params.transform_keys(&:to_sym)
     @matched=true
   end
   def get
-    run{yield(req.params)} if req.get?
+    run{|params|yield(params)} if req.get?
   end
   def post
-    run{yield(req.params)} if req.get?
+    run{|params|yield(params)} if req.get?
   end
 
   def initialize(&block)
     @block=block
   end
+  def service(env)
+    main{instance_eval(&@block)}
+  end
   def call(env)
     @env,@req,@res=env,Rack::Request.new(env),Rack::Response.new('',200,Rack::CONTENT_TYPE=>'text/html')
-    main{instance_eval(&@block)}
+    service(env)    
   end
   def session
     env['rack.session']

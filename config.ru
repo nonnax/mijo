@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Id$ nonnax 2022-04-22 22:11:38 +0800
-require_relative 'lib/mijo'
+require_relative 'cloneware'
 require 'securerandom'
 require 'rack/protection'
 
@@ -11,8 +11,11 @@ App=
 Mijo do
   on '/' do 
     get do |params|
-      session[:name]='nonnax'
-      res.write 'hey !'+String(session[:name])+' '+params.inspect
+      session[:name]=params[:name] || 'nonnax'
+      res.write 'hey,' 
+      res.write String(session[:name]) 
+      res.write ' you got ' 
+      res.write params.inspect
     end
   end
   on '/r' do 
