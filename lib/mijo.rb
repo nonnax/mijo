@@ -42,8 +42,9 @@ class Mijo
     run{ yield } if req.delete?
   end
   
-  def not_found(&block)     
-     @not_found ||= block
+  def not_found(&block)
+    return if @matched
+    @not_found ||= block
   end
 
   def initialize(&block)

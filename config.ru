@@ -27,6 +27,9 @@ Mijo do
     end
   end
   on '/:room' do  |room|
+    get do
+      res.write 'Found it in room: '+ String(room)
+    end
     not_found do
       # local 404 handler
       res.write 'Not in room: '+ String(room)
