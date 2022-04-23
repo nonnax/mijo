@@ -22,9 +22,10 @@ Mijo do
     get do
       res.redirect '/'
     end
-    post do 
-      res.write String(params)
-    end
+    not_found do
+      # local 404 handler
+      res.write 'Not in r: '+ String(room)
+    end  
   end
   on '/:room' do  |room|
     get do

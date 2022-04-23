@@ -5,7 +5,8 @@ class Mijo
   
   attr :env, :req, :res
 
-  def on(u)    
+  def on(u)
+    return if @matched
     @not_found=false
     found=req.path_info.match(pattern[u])
     return unless found
@@ -43,7 +44,7 @@ class Mijo
   end
   
   def not_found(&block)
-    return if @matched
+    return if @matched # yet unhandled
     @not_found ||= block
   end
 
@@ -68,12 +69,12 @@ class Mijo
   end
   
   def pattern
-    Hash.new{ |h,k| h[k]=compile_pattern(k) } 
+    Hash.new{ |h,k| h[k] = compile(k) } 
   end
 
-  def compile_pattern(base)
-    base.gsub(/:\w+/){ |match| '([^/?#]+)'}
-    .then{|compiled_path| /^#{compiled_path}\/?$/}
+  def compile(u)
+    u.gsub(/:\w+/){'([^/?#]+)'}
+    .then{|comp| /^#{comp}\/?$/}
   end
 end
 
