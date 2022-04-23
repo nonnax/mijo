@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Id$ nonnax 2022-04-22 22:11:38 +0800
-require_relative 'cloneware'
+require_relative 'clientware'
 require 'securerandom'
 require 'rack/protection'
 
