@@ -9,8 +9,8 @@ use Rack::Protection
 
 App=
 Mijo do
-  on '/' do 
-    get do |params|
+  on '/' do |params| 
+    get do 
       session[:name]=params[:name] || 'nonnax'
       res.write 'Hey, ' 
       res.write String(session[:name]) 
@@ -18,22 +18,23 @@ Mijo do
       res.write params.inspect
     end
   end
-  on '/r' do 
+  on '/r' do |params| 
     get do
       res.redirect '/'
     end
-    post do |params|
+    post do 
       res.write String(params)
     end
   end
-  on '/:room' do 
-    get do |room, params|
-      res.html [room, params]
-    end
+  on '/:room' do  |room|
+    not_found do
+      # local 404 handler
+      res.write 'Not in room: '+ String(room)
+    end  
   end
   not_found do
     # 404 handler
-    res.redirect '/?params='+String(params)
+    res.write 'Not Anywhere'
   end  
 end
 

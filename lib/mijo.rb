@@ -5,11 +5,12 @@ class Mijo
   
   attr :env, :req, :res
 
-  def on(u)
+  def on(u)    
+    @not_found=false
     found=req.path_info.match(pattern[u])
     return unless found
     @captures=Array(found&.captures)
-    yield
+    yield *[*@captures,req.params.transform_keys(&:to_sym)].compact
   end
 
   def main
@@ -17,32 +18,32 @@ class Mijo
     yield
     unless @matched
       res.status = 404
-      defined?(@not_found) ? instance_eval(&@not_found) : res.write('Not Found')
+      @not_found ? instance_eval(&@not_found) : res.write('Not Found')
     end
     res.finish
   end
   private :main
   
   def run
-    yield [*@captures,req.params.transform_keys(&:to_sym)].compact
+    yield
     @matched=true
   end
   private :run
   
   def get
-    run{|params|yield(*params)} if req.get?
+    run{ yield } if req.get?
   end
   
   def post
-    run{|params|yield(*params)} if req.post?
+    run{ yield } if req.post?
   end
 
   def delete
-    run{|params|yield(*params)} if req.delete?
+    run{ yield } if req.delete?
   end
   
-  def not_found(&block)
-     @not_found = block
+  def not_found(&block)     
+     @not_found ||= block
   end
 
   def initialize(&block)
