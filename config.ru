@@ -9,15 +9,17 @@ use Rack::Protection
 
 App=
 Mijo do
-  get '/' do |params|
-    session[:name]='nonnax'
-    'hey !'+String(session[:name])+' '+params.inspect
+  on '/' do 
+    get do |params|
+      session[:name]='nonnax'
+      res.write 'hey !'+String(session[:name])+' '+params.inspect
+    end
   end
-  get '/r' do |params|
-    res.redirect '/'
+  on '/r' do |params|
+    get do
+      res.redirect '/'
+    end
   end
 end
-
-pp Mijo::Handler.map
 
 run App #.new
