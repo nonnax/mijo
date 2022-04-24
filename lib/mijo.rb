@@ -8,19 +8,26 @@ class Mijo
   attr :env, :req, :res
 
   def on(u)
-    return unless match(u)
+    return if [@matched, !match(u)].any?
     
-    @not_found = false
     yield(*@captures)
+    
     halt(res.finish)
   end
   
+  def get;    run{ yield } if req.get? end
+  def post;   run{ yield } if req.post? end
+  def put;    run{ yield } if req.put? end
+  def delete; run{ yield } if req.delete? end
+
   def match(u)
     req.path_info.match(pattern[u])
     .tap{ |found| @captures = *[ *Array(found&.captures), H[req.params] ].compact }
+    .respond_to?(:captures)
   end
 
   def main
+    @matched= false
     yield
     res.finish
   end
@@ -28,19 +35,14 @@ class Mijo
 
   def run
     yield
-    @matched = true    
+    @matched = true
   end
   private :run
-
-  def get;    run{ yield } if req.get? end
-  def post;   run{ yield } if req.post? end
-  def put;    run{ yield } if req.put? end
-  def delete; run{ yield } if req.delete? end
   
   def not_found(&block)
     return if @matched
-    yield
     res.status = 404
+    yield 
   end
 
   def initialize(&block)
@@ -68,9 +70,11 @@ class Mijo
     @res = Rack::Response.new('', 200, Rack::CONTENT_TYPE => 'text/html')
     service
   end
+
   def halt(response)
     throw :halt, response
   end
+
   def session
     env['rack.session'] || raise('You need to set up a session middleware. `use Rack::Session`')
   end
