@@ -16,7 +16,7 @@ class Mijo
 
     @captures = Array(found&.captures)
     yield(*[*@captures, req.params.transform_keys(&:to_sym)].compact)
-    if @not_found # unhandled by any http method
+    if @not_found # a local not_found handler defined
       res.status=404
       instance_eval(&@not_found)
     end
@@ -45,7 +45,7 @@ class Mijo
   def delete; run{ yield } if req.delete? end
   
   def not_found(&block)
-    return if @matched || @not_found # already caught local 404 handler
+    return if @matched
 
     @not_found = block
   end
