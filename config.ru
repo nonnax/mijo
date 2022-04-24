@@ -38,6 +38,11 @@ Mijo do
       res.redirect '/login?name=nonnax'
     end
   end
+  on '/x' do |params| 
+    not_found do
+      res.write 'not in X'
+    end
+  end
   
   on '/:room' do  |room, params|
     get do

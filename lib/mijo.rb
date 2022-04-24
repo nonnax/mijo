@@ -4,7 +4,7 @@
 # Id$ nonnax 2022-04-22 22:10:56 +0800
 class Mijo
   class Response < Rack::Response; end
-
+  H=Hash.new{|h,k| h[k]=k.transform_keys(&:to_sym)}
   attr :env, :req, :res
 
   def on(u)
@@ -12,21 +12,16 @@ class Mijo
     
     @not_found = false
     yield(*@captures)
-    begin res.status=404; instance_eval(&@not_found) end if @not_found # a local not_found handler defined
-    
     halt(res.finish)
   end
   
   def match(u)
-    req.path_info.match(pattern[u]).tap{ |found|
-      @captures = *[Array(found&.captures), req.params.transform_keys(&:to_sym)].flatten.compact
-    }
+    req.path_info.match(pattern[u])
+    .tap{ |found| @captures = *[ *Array(found&.captures), H[req.params] ].compact }
   end
 
   def main
     yield
-    res.status = 404
-    @not_found ? instance_eval(&@not_found) : res.write('Not Found')
     res.finish
   end
   private :main
@@ -44,8 +39,8 @@ class Mijo
   
   def not_found(&block)
     return if @matched
-
-    @not_found = block
+    yield
+    res.status = 404
   end
 
   def initialize(&block)
