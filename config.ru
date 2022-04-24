@@ -29,7 +29,7 @@ Mijo do
   on '/login' do |params|
     get do
       session[:name]=params[:name] || 'mijo'
-      res.redirect '/'
+      res.redirect '/'+'?name='+String(session[:name])
     end
   end
   

@@ -8,24 +8,22 @@ class Mijo
   attr :env, :req, :res
 
   def on(u)
-    return if @matched
     return unless match(u)
     yield(*@captures)
     
-    begin res.status=404; instance_eval(&@not_found) end if @not_found      # a local not_found handler defined
+    begin res.status=404; instance_eval(&@not_found) end if @not_found # a local not_found handler defined
     
     halt(res.finish)
   end
   
   def match(u)
     @not_found = false
-    found = req.path_info.match(pattern[u])
-    @captures = *[Array(found&.captures), req.params.transform_keys(&:to_sym)].flatten.compact
-    found
+    req.path_info.match(pattern[u]).tap{ |found|
+      @captures = *[Array(found&.captures), req.params.transform_keys(&:to_sym)].flatten.compact
+    }
   end
 
   def main
-    @matched = false
     yield
     res.status = 404
     @not_found ? instance_eval(&@not_found) : res.write('Not Found')
