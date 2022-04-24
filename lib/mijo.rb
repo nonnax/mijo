@@ -16,22 +16,26 @@ class Mijo
 
     @captures = Array(found&.captures)
     yield(*[*@captures, req.params.transform_keys(&:to_sym)].compact)
+    if @not_found # unhandled by any http method
+      res.status=404
+      instance_eval(&@not_found)
+    end
+    halt(res.finish)
+
   end
 
   def main
     @matched = false
     yield
-    unless @matched
-      res.status = 404
-      @not_found ? instance_eval(&@not_found) : res.write('Not Found')
-    end
+    res.status = 404
+    @not_found ? instance_eval(&@not_found) : res.write('Not Found')
     res.finish
   end
   private :main
 
   def run
     yield
-    @matched = true
+    @matched = true    
   end
   private :run
 
@@ -41,9 +45,9 @@ class Mijo
   def delete; run{ yield } if req.delete? end
   
   def not_found(&block)
-    return if @matched # yet unhandled
+    return if @matched || @not_found # already caught local 404 handler
 
-    @not_found ||= block
+    @not_found = block
   end
 
   def initialize(&block)
@@ -52,7 +56,11 @@ class Mijo
 
   # `service` evals the url mappings 
   def service
-    main { instance_eval(&@block) }
+    catch(:halt) do
+      main { 
+        instance_eval(&@block) 
+      }
+    end
   end
   
   # a subclass can provide new request/response prior to calling `service()`
@@ -67,7 +75,9 @@ class Mijo
     @res = Rack::Response.new('', 200, Rack::CONTENT_TYPE => 'text/html')
     service
   end
-
+  def halt(response)
+    throw :halt, response
+  end
   def session
     env['rack.session'] || raise('You need to set up a session middleware. `use Rack::Session`')
   end

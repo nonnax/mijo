@@ -11,14 +11,17 @@ use Rack::Protection
 App=
 Mijo do
   on '/' do |params| 
-    get do 
+    get do
       unless session[:name]
-        res.redirect '/login' 
+        res.redirect '/login'
       else
-        res.write String(session[:name]) 
-        res.write ' you got: ' 
+        res.write String(session[:name])
+        res.write ' you got: '
         res.write params.inspect
       end
+    end
+    not_found do # unhandled url match
+      res.write 'Nada'
     end
   end
   on '/login' do |params|
@@ -35,13 +38,8 @@ Mijo do
   on '/:room' do  |room, params|
     get do
       # write json
-      res.json room:, params: 
+      res.json room:, params:
     end
-    not_found do
-      # local 404 handler 
-      # write plain text
-      res.plain 'Not in room: '+ String(room)
-    end  
   end
   not_found do
     # 404 handler
