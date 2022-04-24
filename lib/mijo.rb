@@ -9,19 +9,19 @@ class Mijo
 
   def on(u)
     return if @matched
-
+    return unless match(u)
+    yield(*@captures)
+    
+    begin res.status=404; instance_eval(&@not_found) end if @not_found      # a local not_found handler defined
+    
+    halt(res.finish)
+  end
+  
+  def match(u)
     @not_found = false
     found = req.path_info.match(pattern[u])
-    return unless found
-
-    @captures = Array(found&.captures)
-    yield(*[*@captures, req.params.transform_keys(&:to_sym)].compact)
-    if @not_found # a local not_found handler defined
-      res.status=404
-      instance_eval(&@not_found)
-    end
-    halt(res.finish)
-
+    @captures = *[Array(found&.captures), req.params.transform_keys(&:to_sym)].flatten.compact
+    found
   end
 
   def main
