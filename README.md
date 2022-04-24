@@ -10,45 +10,46 @@ use Rack::Protection
 
 App=
 Mijo do
-  on '/' do |params|
-    get do 
+  on '/' do |params| 
+    get do
       unless session[:name]
-        res.redirect '/login' 
+        res.redirect '/login'
       else
-        res.write String(session[:name]) 
-        res.write ' : ' 
+        res.write String(session[:name])
+        res.write ' you got: '
         res.write params.inspect
       end
     end
+    not_found do # unhandled url match
+      res.write 'Nada'
+    end
   end
+  
   on '/login' do |params|
     get do
-      session[:name]=params[:name] || 'nonnax'
+      session[:name]=params[:name] || 'mijo'
       res.redirect '/'
     end
   end
-  on '/r' do |params|
+  
+  on '/r' do |params| 
     get do
-      res.redirect '/'
-    end
-    post do
-      res.write String(params)
+      res.redirect '/login?name=nonnax'
     end
   end
-  on '/:room' do |room, params|
-    get do 
-      res.html [room, params]
+  
+  on '/:room' do  |room, params|
+    get do
+      # write json
+      res.json room:, params:
     end
-    not_found do
-      # local 404 handler
-      # path was matched but no http method handler
-      res.write 'Not in room: '+ String(room)
-    end    
   end
+  
   not_found do
     # 404 handler
-    res.redirect '/'
+    res.write 'Not Anywhere'
   end  
+
 end
 
 run App #.new
