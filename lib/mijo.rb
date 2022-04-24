@@ -29,13 +29,16 @@ class Mijo
   def main
     @matched= false
     yield
+    # no matches
+    res.status=404
+    res.write 'Not Found'
     res.finish
   end
   private :main
 
   def run
     yield
-    @matched = true
+    @matched = true # path_info/request_method pair matched
   end
   private :run
   
@@ -58,7 +61,7 @@ class Mijo
     end
   end
   
-  # a subclass can provide new request/response prior to calling `service()`
+  # a subclass can replace request/response classes for added features
   # instance vars 
   #  `@env` = env
   #  `@req` = a_request_class

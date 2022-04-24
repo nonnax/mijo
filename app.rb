@@ -48,10 +48,10 @@ Mijo do
     end
   end
   
-  not_found do
-    # 404 handler
-    res.write 'Not Anywhere'
-  end  
+  # not_found do
+    # # 404 handler
+    # res.write 'Not Anywhere'
+  # end
 
 end
 
