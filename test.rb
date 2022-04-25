@@ -30,6 +30,10 @@ class TestApp < Test::Unit::TestCase
     get "/x"
      assert_equal last_response.status, 404
   end
+  def test_global_not_found
+    get "/global/x"
+     assert_equal last_response.status, 302
+  end
   def test_room
     get "/room"
      assert_equal 'application/json', last_response.headers[Rack::CONTENT_TYPE]

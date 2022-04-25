@@ -8,18 +8,17 @@ class Mijo
   attr :env, :req, :res
 
   def on(u)
-    return if [@matched, !match(u)].any?
-    
+    return if [@stop, !match(u)].any? 
     yield(*@captures)
-    
-    halt(res.finish)
   end
   
+  # fancy writer methods
   def get;    run{ yield } if req.get? end
   def post;   run{ yield } if req.post? end
   def put;    run{ yield } if req.put? end
   def delete; run{ yield } if req.delete? end
-
+  def not_found; run(404){ yield } end
+  
   def match(u)
     req.path_info.match(pattern[u])
     .tap{ |found| @captures = *[ *Array(found&.captures), H[req.params] ].compact }
@@ -27,26 +26,25 @@ class Mijo
   end
 
   def main
-    @matched= false
+    @stop = false
     yield
-    # no matches
-    res.status=404
-    res.write 'Not Found'
+    # default writer
+    not_found{ 
+      res.write 'Not Found'
+    } 
     res.finish
   end
   private :main
 
-  def run
+  def run(status=200)
+    # `run` once only
+    return if @stop
+    res.status=status
     yield
-    @matched = true # path_info/request_method pair matched
+    @stop = true # stops searching when path_info/request_method pair matched or not_found called
   end
   private :run
   
-  def not_found(&block)
-    return if @matched
-    res.status = 404
-    yield 
-  end
 
   def initialize(&block)
     @block = block
@@ -54,11 +52,11 @@ class Mijo
 
   # `service` evals the url mappings 
   def service
-    catch(:halt) do
+    catch(:halt) {
       main { 
         instance_eval(&@block) 
       }
-    end
+    }
   end
   
   # a subclass can replace request/response classes for added features

@@ -38,20 +38,18 @@ Mijo do
   on '/x' do |params| 
     not_found do
       res.write 'not in X'
+      halt(res.finish)
     end
-  end
-  
+  end  
   on '/:room' do  |room, params|
     get do
       # write json
       res.json room:, params:
     end
   end
+  not_found do # unhandled url match
+    res.redirect '/'    
+  end
   
-  # not_found do
-    # # 404 handler
-    # res.write 'Not Anywhere'
-  # end
-
 end
 
